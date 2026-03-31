@@ -135,15 +135,7 @@ export const createClaudeForChromeMcpServer = () => ({});
 export default {};
 `,
 
-  '@alcalzone/ansi-tokenize': `
-export const ansiCodesToString = () => '';
-export const diffAnsiCodes = () => ({});
-export const styledCharsFromTokens = () => [];
-export const tokenize = () => [];
-export const reduceAnsiCodes = () => ({});
-export const undoAnsiCodes = () => ({});
-export default {};
-`,
+  // NOTE: @alcalzone/ansi-tokenize is installed via npm (required for Ink rendering)
 
   'color-diff-napi': `
 export const ColorDiff = {};
