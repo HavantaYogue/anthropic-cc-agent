@@ -2,6 +2,8 @@
 
 > Run Claude Code `v2.1.88` from leaked source — one command setup. Both interactive TUI and non-interactive modes work.
 
+![Open source vs Official](screenshot.png)
+
 ## Quick Start
 
 ```bash
