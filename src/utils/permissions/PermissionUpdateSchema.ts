@@ -74,5 +74,9 @@ export const permissionUpdateSchema = lazySchema(() =>
       directories: z.array(z.string()),
       destination: permissionUpdateDestinationSchema(),
     }),
+    z.object({
+      type: z.literal('setSessionAllowAllPermissionPrompts'),
+      value: z.boolean(),
+    }),
   ]),
 )

@@ -6,7 +6,7 @@ import type { PermissionUpdate } from '../../../utils/permissions/PermissionUpda
 import { shouldShowAlwaysAllowOptions } from '../../../utils/permissions/permissionsLoader.js';
 import type { OptionWithDescription } from '../../CustomSelect/select.js';
 import { generateShellSuggestionsLabel } from '../shellPermissionHelpers.js';
-export type BashToolUseOption = 'yes' | 'yes-apply-suggestions' | 'yes-prefix-edited' | 'yes-classifier-reviewed' | 'no';
+export type BashToolUseOption = 'yes' | 'yes-allow-conversation' | 'yes-apply-suggestions' | 'yes-prefix-edited' | 'yes-classifier-reviewed' | 'no';
 
 /**
  * Check if a description already exists in the allow list.
@@ -74,6 +74,11 @@ export function bashToolUseOptions({
       value: 'yes'
     });
   }
+
+  options.push({
+    label: 'Yes, allow all permission prompts for the rest of this conversation',
+    value: 'yes-allow-conversation'
+  });
 
   // Only show "always allow" options when not restricted by allowManagedPermissionRulesOnly
   if (shouldShowAlwaysAllowOptions()) {

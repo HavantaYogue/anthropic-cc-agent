@@ -17,7 +17,8 @@ plugin({
     build.module("bun:bundle", () => {
       return {
         exports: {
-          feature: (_name: string) => false,
+          /** Official builds set flags at compile time. We enable Buddy (terminal companion) for source runs. */
+          feature: (name: string) => name === "BUDDY",
         },
         loader: "object",
       };

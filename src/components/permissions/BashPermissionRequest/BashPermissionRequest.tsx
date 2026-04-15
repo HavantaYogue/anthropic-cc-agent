@@ -15,7 +15,7 @@ import { parseSedEditCommand } from '../../../tools/BashTool/sedEditParser.js';
 import { shouldUseSandbox } from '../../../tools/BashTool/shouldUseSandbox.js';
 import { getCompoundCommandPrefixesStatic } from '../../../utils/bash/prefix.js';
 import { createPromptRuleContent, generateGenericDescription, getBashPromptAllowDescriptions, isClassifierPermissionsEnabled } from '../../../utils/permissions/bashClassifier.js';
-import { extractRules } from '../../../utils/permissions/PermissionUpdate.js';
+import { extractRules, SESSION_ALLOW_ALL_PERMISSION_PROMPTS_UPDATE } from '../../../utils/permissions/PermissionUpdate.js';
 import type { PermissionUpdate } from '../../../utils/permissions/PermissionUpdateSchema.js';
 import { SandboxManager } from '../../../utils/sandbox/sandbox-adapter.js';
 import { Select } from '../../CustomSelect/select.js';
@@ -321,6 +321,7 @@ function BashPermissionRequestInner({
     // Map options to numeric values for analytics (strings not allowed in logEvent)
     let optionIndex: Record<string, number> = {
       yes: 1,
+      'yes-allow-conversation': 5,
       'yes-apply-suggestions': 2,
       'yes-prefix-edited': 2,
       no: 3
@@ -328,6 +329,7 @@ function BashPermissionRequestInner({
     if (feature('BASH_CLASSIFIER')) {
       optionIndex = {
         yes: 1,
+        'yes-allow-conversation': 5,
         'yes-apply-suggestions': 2,
         'yes-prefix-edited': 2,
         'yes-classifier-reviewed': 3,
@@ -402,6 +404,13 @@ function BashPermissionRequestInner({
           // Extract suggestions if present (works for both 'ask' and 'passthrough' behaviors)
           const permissionUpdates_0 = 'suggestions' in toolUseConfirm.permissionResult ? toolUseConfirm.permissionResult.suggestions || [] : [];
           toolUseConfirm.onAllow(toolUseConfirm.input, permissionUpdates_0);
+          onDone();
+          break;
+        }
+      case 'yes-allow-conversation':
+        {
+          logUnaryPermissionEvent('tool_use_single', toolUseConfirm, 'accept');
+          toolUseConfirm.onAllow(toolUseConfirm.input, [SESSION_ALLOW_ALL_PERMISSION_PROMPTS_UPDATE]);
           onDone();
           break;
         }

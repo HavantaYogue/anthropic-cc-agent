@@ -4,6 +4,7 @@ import { getOriginalCwd } from '../../bootstrap/state.js';
 import { Box, Text, useTheme } from '../../ink.js';
 import { sanitizeToolNameForAnalytics } from '../../services/analytics/metadata.js';
 import { env } from '../../utils/env.js';
+import { SESSION_ALLOW_ALL_PERMISSION_PROMPTS_UPDATE } from '../../utils/permissions/PermissionUpdate.js';
 import { shouldShowAlwaysAllowOptions } from '../../utils/permissions/permissionsLoader.js';
 import { truncateToLines } from '../../utils/stringUtils.js';
 import { logUnaryEvent } from '../../utils/unaryLogging.js';
@@ -12,7 +13,7 @@ import { PermissionDialog } from './PermissionDialog.js';
 import { PermissionPrompt, type PermissionPromptOption, type ToolAnalyticsContext } from './PermissionPrompt.js';
 import type { PermissionRequestProps } from './PermissionRequest.js';
 import { PermissionRuleExplanation } from './PermissionRuleExplanation.js';
-type FallbackOptionValue = 'yes' | 'yes-dont-ask-again' | 'no';
+type FallbackOptionValue = 'yes' | 'yes-allow-conversation' | 'yes-dont-ask-again' | 'no';
 export function FallbackPermissionRequest(t0) {
   const $ = _c(58);
   const {
@@ -64,6 +65,21 @@ export function FallbackPermissionRequest(t0) {
               }
             });
             toolUseConfirm.onAllow(toolUseConfirm.input, [], feedback);
+            onDone();
+            break bb8;
+          }
+        case "yes-allow-conversation":
+          {
+            logUnaryEvent({
+              completion_type: "tool_use_single",
+              event: "accept",
+              metadata: {
+                language_name: "none",
+                message_id: toolUseConfirm.assistantMessage.message.id,
+                platform: env.platform
+              }
+            });
+            toolUseConfirm.onAllow(toolUseConfirm.input, [SESSION_ALLOW_ALL_PERMISSION_PROMPTS_UPDATE]);
             onDone();
             break bb8;
           }
@@ -170,6 +186,10 @@ export function FallbackPermissionRequest(t0) {
   let result;
   if ($[16] !== userFacingName) {
     result = [t7];
+    result.push({
+      label: "Yes, allow all permission prompts for the rest of this conversation",
+      value: "yes-allow-conversation"
+    });
     if (showAlwaysAllowOptions) {
       const t8 = <Text bold={true}>{userFacingName}</Text>;
       let t9;

@@ -1,9 +1,11 @@
+// Official builds link the Rust NAPI (`color-diff-napi`). This repo stubs that package in
+// setup.mjs, which breaks `new ColorDiff`. The in-tree TS port matches the same API.
 import {
   ColorDiff,
   ColorFile,
   getSyntaxTheme as nativeGetSyntaxTheme,
   type SyntaxTheme,
-} from 'color-diff-napi'
+} from '../../native-ts/color-diff/index.js'
 import { isEnvDefinedFalsy } from '../../utils/envUtils.js'
 
 export type ColorModuleUnavailableReason = 'env'

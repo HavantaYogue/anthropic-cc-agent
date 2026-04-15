@@ -27,6 +27,12 @@ import { addPermissionRulesToSettings } from './permissionsLoader.js'
 // Re-export for backwards compatibility
 export type { AdditionalWorkingDirectory, WorkingDirectorySource }
 
+/** Apply with `onAllow` / `handleUserAllow` to enable session-wide auto-approval of permission prompts. */
+export const SESSION_ALLOW_ALL_PERMISSION_PROMPTS_UPDATE: PermissionUpdate = {
+  type: 'setSessionAllowAllPermissionPrompts',
+  value: true,
+}
+
 export function extractRules(
   updates: PermissionUpdate[] | undefined,
 ): PermissionRuleValue[] {
@@ -179,6 +185,16 @@ export function applyPermissionUpdate(
       return {
         ...context,
         additionalWorkingDirectories: newAdditionalDirs,
+      }
+    }
+
+    case 'setSessionAllowAllPermissionPrompts': {
+      logForDebugging(
+        `Applying permission update: sessionAllowAllPermissionPrompts=${update.value}`,
+      )
+      return {
+        ...context,
+        sessionAllowAllPermissionPrompts: update.value,
       }
     }
 
@@ -338,6 +354,10 @@ export function persistPermissionUpdate(update: PermissionUpdate): void {
       })
       break
     }
+
+    case 'setSessionAllowAllPermissionPrompts':
+      // In-memory only; never written to settings files
+      break
   }
 }
 

@@ -1259,6 +1259,28 @@ async function hasPermissionsToUseToolInner(
     return toolPermissionResult
   }
 
+  // 1h. Session "allow all prompts for this conversation" (set from permission dialogs)
+  appState = context.getAppState()
+  if (
+    appState.toolPermissionContext.sessionAllowAllPermissionPrompts &&
+    toolPermissionResult.behavior === 'ask' &&
+    toolPermissionResult.decisionReason?.type !== 'safetyCheck' &&
+    !(
+      toolPermissionResult.decisionReason?.type === 'rule' &&
+      toolPermissionResult.decisionReason.rule.ruleBehavior === 'ask'
+    )
+  ) {
+    return {
+      behavior: 'allow',
+      updatedInput: getUpdatedInputOrFallback(toolPermissionResult, input),
+      decisionReason: {
+        type: 'other',
+        reason:
+          'Session allow-all: interactive prompts approved for this conversation',
+      },
+    }
+  }
+
   // 2a. Check if mode allows the tool to run
   // IMPORTANT: Call getAppState() to get the latest value
   appState = context.getAppState()

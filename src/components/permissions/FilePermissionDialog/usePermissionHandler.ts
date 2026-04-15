@@ -11,6 +11,7 @@ import {
 } from '../../../tools/FileEditTool/constants.js'
 import { env } from '../../../utils/env.js'
 import { generateSuggestions } from '../../../utils/permissions/filesystem.js'
+import { SESSION_ALLOW_ALL_PERMISSION_PROMPTS_UPDATE } from '../../../utils/permissions/PermissionUpdate.js'
 import type { PermissionUpdate } from '../../../utils/permissions/PermissionUpdateSchema.js'
 import {
   type CompletionType,
@@ -82,6 +83,38 @@ function handleAcceptOnce(
 
   onDone()
   toolUseConfirm.onAllow(toolUseConfirm.input, [], options?.feedback)
+}
+
+function handleAcceptConversation(
+  params: PermissionHandlerParams,
+  options?: PermissionHandlerOptions,
+): void {
+  const {
+    messageId,
+    toolUseConfirm,
+    onDone,
+    completionType,
+    languageName,
+  } = params
+
+  logPermissionEvent('accept', completionType, languageName, messageId)
+
+  logEvent('tengu_accept_submitted', {
+    toolName: sanitizeToolNameForAnalytics(
+      toolUseConfirm.tool.name,
+    ) as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+    isMcp: toolUseConfirm.tool.isMcp ?? false,
+    has_instructions: !!options?.feedback,
+    instructions_length: options?.feedback?.length ?? 0,
+    entered_feedback_mode: options?.enteredFeedbackMode ?? false,
+  })
+
+  onDone()
+  toolUseConfirm.onAllow(
+    toolUseConfirm.input,
+    [SESSION_ALLOW_ALL_PERMISSION_PROMPTS_UPDATE],
+    options?.feedback,
+  )
 }
 
 function handleAcceptSession(
@@ -180,6 +213,7 @@ export const PERMISSION_HANDLERS: Record<
   (params: PermissionHandlerParams, options?: PermissionHandlerOptions) => void
 > = {
   'accept-once': handleAcceptOnce,
+  'accept-conversation': handleAcceptConversation,
   'accept-session': handleAcceptSession,
   reject: handleReject,
 }

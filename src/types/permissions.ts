@@ -129,6 +129,11 @@ export type PermissionUpdate =
       destination: PermissionUpdateDestination
       directories: string[]
     }
+  | {
+      /** In-memory only: auto-approve non-safety permission prompts until process exit */
+      type: 'setSessionAllowAllPermissionPrompts'
+      value: boolean
+    }
 
 /**
  * Source of an additional working directory permission.

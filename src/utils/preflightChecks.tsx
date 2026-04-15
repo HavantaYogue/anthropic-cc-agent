@@ -7,6 +7,7 @@ import { getOauthConfig } from '../constants/oauth.js';
 import { useTimeout } from '../hooks/useTimeout.js';
 import { Box, Text } from '../ink.js';
 import { getSSLErrorHint } from '../services/api/errorUtils.js';
+import { isEnvTruthy } from './envUtils.js';
 import { getUserAgent } from './http.js';
 import { logError } from './log.js';
 export interface PreflightCheckResult {
@@ -16,9 +17,20 @@ export interface PreflightCheckResult {
 }
 async function checkEndpoints(): Promise<PreflightCheckResult> {
   try {
+    if (isEnvTruthy(process.env.CLAUDE_CODE_SKIP_PREFLIGHT)) {
+      return { success: true };
+    }
     const oauthConfig = getOauthConfig();
     const tokenUrl = new URL(oauthConfig.TOKEN_URL);
-    const endpoints = [`${oauthConfig.BASE_API_URL}/api/hello`, `${tokenUrl.origin}/v1/oauth/hello`];
+    // Do not call `${BASE_API_URL}/api/hello` by default (api.anthropic.com) — it is redundant for
+    // API usage and fails for some networks/proxies with misleading errors. Opt back in with
+    // CLAUDE_CODE_PREFLIGHT_ANTHROPIC_HELLO=1 if you need the old two-endpoint check.
+    const endpoints = [
+      ...(isEnvTruthy(process.env.CLAUDE_CODE_PREFLIGHT_ANTHROPIC_HELLO)
+        ? [`${oauthConfig.BASE_API_URL}/api/hello`]
+        : []),
+      `${tokenUrl.origin}/v1/oauth/hello`,
+    ];
     const checkEndpoint = async (url: string): Promise<PreflightCheckResult> => {
       try {
         const response = await axios.get(url, {

@@ -41,6 +41,8 @@ export function isInGlobalClaudeFolder(filePath: string): boolean {
 export type PermissionOption = {
   type: 'accept-once';
 } | {
+  type: 'accept-conversation';
+} | {
   type: 'accept-session';
   scope?: 'claude-folder' | 'global-claude-folder';
 } | {
@@ -92,6 +94,13 @@ export function getFilePermissionOptions({
       }
     });
   }
+  options.push({
+    label: 'Yes, allow all permission prompts for the rest of this conversation',
+    value: 'yes-conversation',
+    option: {
+      type: 'accept-conversation'
+    }
+  });
   const inAllowedPath = pathInAllowedWorkingPath(filePath, toolPermissionContext);
 
   // Check if this is a .claude/ folder path (project or global)
